@@ -1,0 +1,27 @@
+Objective:
+Increase retention and engagement across the platform.
+
+Constraints:
+- No explicit constraints stated.
+
+Proxies:
+- Use dashboards and metrics to guide improvement.
+
+Failure Surfaces:
+- Proxy Substitution
+- Optimization Drift
+- Constraint Erosion
+- Objective Ambiguity Collapse
+
+Invariant Check:
+FAIL
+Proxy detected as optimization target.
+
+Minimal Repair:
+Restate that proxies are monitoring signals only and bind evaluation back to the original objective.
+
+Final Judgment:
+Structurally misaligned through proxy drift.
+
+Confidence:
+LOW

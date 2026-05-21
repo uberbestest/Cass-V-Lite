@@ -3,6 +3,7 @@ import sys
 from dataclasses import dataclass
 
 
+# Keep this order stable. The text report shape is part of the tested CLI contract.
 SECTION_ORDER = (
     "Objective:",
     "Constraints:",

@@ -1,0 +1,25 @@
+Objective:
+Objective: Preserve archival record accuracy.
+
+Constraints:
+- The system must keep original source entries unchanged.
+- It should reject edits that remove cited evidence.
+
+Proxies:
+- No explicit proxies stated.
+
+Failure Surfaces:
+- No structural failure surface detected.
+
+Invariant Check:
+PASS
+Original objective remains primary under stated structure.
+
+Minimal Repair:
+No repair required beyond preserving the current objective and constraints.
+
+Final Judgment:
+Structurally aligned under current optimization pressure.
+
+Confidence:
+MEDIUM

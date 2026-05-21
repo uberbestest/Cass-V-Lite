@@ -1,0 +1,26 @@
+Objective:
+Objective: Improve student learning outcomes.
+
+Constraints:
+- No explicit constraints stated.
+
+Proxies:
+- Measure success by average test score.
+
+Failure Surfaces:
+- Proxy Substitution
+- Optimization Drift
+- Constraint Erosion
+
+Invariant Check:
+FAIL
+Proxy detected as optimization target.
+
+Minimal Repair:
+Restate that proxies are monitoring signals only and bind evaluation back to the original objective.
+
+Final Judgment:
+Structurally misaligned through proxy drift.
+
+Confidence:
+HIGH

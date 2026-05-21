@@ -1,98 +1,73 @@
 # Cass-V Lite
 
-A minimal executable version of the Cass-V structural audit framework.
+Cass-V Lite is a small structural audit tool for checking whether a stated objective survives optimization pressure.
 
-A single-pass structural audit tool for evaluating whether a system remains aligned with its original objective under optimization pressure.
+It is meant for quick, grounded evaluation of systems, plans, prompts, and governance designs. The tool looks for cases where a proxy, metric, reward signal, or vague target can replace the original objective.
 
-Cass-V Lite identifies:
+It does not evaluate ethics, quality, persuasiveness, or policy merit. It checks structural alignment only.
 
-- the true objective  
-- constraints  
-- proxies / reward signals  
-- failure surfaces  
+## What It Reports
 
-It returns a strict structural judgment.
+Cass-V Lite returns a fixed text report with these sections:
 
-This tool does not evaluate ethics, quality, or persuasiveness.  
-It evaluates structural integrity only.
+- `Objective`
+- `Constraints`
+- `Proxies`
+- `Failure Surfaces`
+- `Invariant Check`
+- `Minimal Repair`
+- `Final Judgment`
+- `Confidence`
 
-## Example
+The output structure is part of the project contract and is covered by tests.
 
-Input:  
-Improve student learning outcomes. Measure success by average test score.
+## Run
 
-Output:  
-FAIL — proxy substitution (test score used as optimization target)
+Pass text as an argument:
 
----
-
-## Why it exists
-
-Many systems drift because they optimize proxies instead of their original objective.
-
-Cass-V Lite is designed to detect:
-
-- proxy substitution  
-- optimization drift  
-- constraint erosion  
-
-before those failures become embedded.
-
----
-
-## How to run
-
-Run:
-
+```powershell
 python cass_v_lite.py "Objective: Improve student learning outcomes. Measure success by average test score."
+```
 
-or
+Or pipe text through standard input:
 
-echo "Objective: Keep support accurate. Optimize for ticket throughput." | python cass_v_lite.py
+```powershell
+"Objective: Keep support accurate. Optimize for ticket throughput." | python cass_v_lite.py
+```
 
----
+## Examples
 
-## Example Output
+Example inputs and outputs are in `examples/`:
 
-Objective:
-Improve student learning outcomes.
+- `examples/aligned_system_input.txt`
+- `examples/aligned_system_output.txt`
+- `examples/proxy_drift_input.txt`
+- `examples/proxy_drift_output.txt`
+- `examples/ambiguous_objective_input.txt`
+- `examples/ambiguous_objective_output.txt`
 
-Constraints:
-- No explicit constraints stated.
+These are plain text snapshots for first-time readers and for manual comparison. The automated tests remain in `test_cass_v_lite.py`.
 
-Proxies:
-- Measure success by average test score.
+## Tests
 
-Failure Surfaces:
-- Proxy Substitution
-- Optimization Drift
-- Constraint Erosion
+```powershell
+python -m unittest
+```
 
-Invariant Check:
-FAIL
+The tests cover aligned systems, proxy-heavy systems, ambiguous objectives, over-optimized systems, and the exact ordering of output sections.
 
-Final Judgment:
-Structurally misaligned through proxy drift.
+## Files
 
----
+- `cass_v_lite.py` contains the audit logic and command-line entry point.
+- `test_cass_v_lite.py` contains the unit tests.
+- `examples/` contains small input/output samples.
 
-## Scope (Important)
+## Scope
 
-Cass-V Lite is intentionally minimal.
+Cass-V Lite is intentionally narrow. It does not include multi-agent reasoning, recursive refinement, adversarial testing, or broader framework expansion.
 
-It does not include:
-
-- multi-agent reasoning  
-- recursive refinement  
-- adversarial mirror testing  
-- deep constraint reconstruction  
-
-Those exist in the full system.
-
----
+Use it as a first structural pass: identify the objective, locate constraints, surface proxy pressure, and return the smallest repair that keeps the original objective primary.
 
 ## Status
 
-Initial release candidate
-
-Validated on multiple proxy-substitution test cases
+Local working prototype with unit tests.
