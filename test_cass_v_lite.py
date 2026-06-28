@@ -1,6 +1,8 @@
 import unittest
+from io import StringIO
+from unittest.mock import patch
 
-from cass_v_lite import SECTION_ORDER, evaluate_cass_v_lite
+from cass_v_lite import SECTION_ORDER, evaluate_cass_v_lite, main
 
 
 class CassVLiteTests(unittest.TestCase):
@@ -54,6 +56,18 @@ class CassVLiteTests(unittest.TestCase):
         output = evaluate_cass_v_lite(text)
         positions = [output.index(section) for section in SECTION_ORDER]
         self.assertEqual(positions, sorted(positions))
+
+    def test_cli_accepts_argument_text(self) -> None:
+        with (
+            patch("sys.argv", ["cass_v_lite.py", "Objective: Preserve data integrity."]),
+            patch("sys.stdin", StringIO("")),
+            patch("sys.stdout", new_callable=StringIO) as stdout,
+        ):
+            exit_code = main()
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("Objective:\nObjective: Preserve data integrity.", stdout.getvalue())
+        self.assertIn("Invariant Check:\nPASS", stdout.getvalue())
 
 
 if __name__ == "__main__":
