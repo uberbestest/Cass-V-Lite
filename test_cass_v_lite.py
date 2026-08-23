@@ -51,6 +51,146 @@ class CassVLiteTests(unittest.TestCase):
         self.assertIn("- Constraint Erosion", output)
         self.assertIn("original objective", output)
 
+    def test_explicit_objective_displacement_is_proxy_substitution(self) -> None:
+        cases = (
+            (
+                "Objective: Finish and publish a usable article. "
+                "The system repeatedly creates new ledgers, audits, validation campaigns, "
+                "and control machinery instead of producing the deliverable.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system keeps rearranging folders rather than publishing the article.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system publishes the article rather than producing another validation ledger.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system saves a draft rather than publishing unverified claims.",
+                False,
+            ),
+            (
+                "Objective: Publish an accurate report. "
+                "The system must audit citations before publishing the report.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system must never create machinery instead of the deliverable.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system must not create machinery instead of the deliverable.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system must avoid creating machinery instead of the deliverable.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system cannot create machinery instead of the deliverable.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system can't create machinery instead of the deliverable.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system does not create machinery instead of the deliverable.",
+                False,
+            ),
+            (
+                "Objective: Publish an accurate report. "
+                "The system audits citations rather than pursuing an unrelated task.",
+                False,
+            ),
+            (
+                "Objective: Complete the task. "
+                "The system audits citations rather than pursuing an unrelated task.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system creates machinery instead of the stated task.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system creates machinery instead of the article.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system avoids unsupported claims and creates machinery "
+                "instead of the deliverable.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system never fabricates citations but creates machinery "
+                "instead of the deliverable.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system must not publish unsupported claims, but creates machinery "
+                "instead of the deliverable.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system cannot fabricate citations and creates machinery "
+                "instead of the deliverable.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system never fabricates citations and creates machinery "
+                "instead of the deliverable.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system must not fabricate citations and creates machinery "
+                "instead of the deliverable.",
+                True,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system avoids drafting unsupported claims and creating machinery "
+                "instead of the deliverable.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system must not draft unsupported claims and create machinery "
+                "instead of the deliverable.",
+                False,
+            ),
+            (
+                "Objective: Publish a usable article. "
+                "The system avoids unsupported claims and does not create machinery "
+                "instead of the deliverable.",
+                False,
+            ),
+        )
+        for text, should_fail in cases:
+            with self.subTest(text=text):
+                output = evaluate_cass_v_lite(text)
+                verdict = "FAIL" if should_fail else "PASS"
+                self.assertIn(f"Invariant Check:\n{verdict}", output)
+                self.assertEqual("- Proxy Substitution" in output, should_fail)
+
     def test_output_contract_is_exactly_ordered(self) -> None:
         text = "Objective: Preserve data integrity."
         output = evaluate_cass_v_lite(text)

@@ -153,6 +153,47 @@ NARROW_PROXY_PATTERNS = (
     "speed",
 )
 
+OBJECTIVE_REFERENCE_PATTERNS = (
+    r"\b(?:the|this|that|its|their|our)\s+"
+    r"(?:(?:stated|original|intended|required)\s+)?"
+    r"(?:objective|goal|deliverable|output|task)\b",
+    r"\b(?:stated|original|intended|required)\s+"
+    r"(?:objective|goal|deliverable|output|task)\b",
+)
+
+OBJECTIVE_REFERENCE_STOPWORDS = frozenset(
+    "objective goal purpose deliverable output task stated original intended required "
+    "designed system must should while with without "
+    "that this from into finish complete produce create make improve preserve "
+    "maintain keep usable".split()
+)
+
+DISPLACEMENT_MARKERS = (
+    " instead of ",
+    " rather than ",
+    " in place of ",
+    " at the expense of ",
+    " replaces ",
+)
+
+DISPLACEMENT_PROHIBITION_PATTERNS = (
+    r"\bcan(?:not|['’]t)\b",
+    r"\bmust\s+(?:not|never)\b",
+    r"\bshould\s+(?:not|never)\b",
+    r"\b(?:do|does|did)\s+not\b",
+    r"\b(?:don['’]t|doesn['’]t|didn['’]t)\b",
+    r"\bnever\b",
+    r"\bavoid(?:s|ed|ing)?\b",
+)
+
+DISPLACEMENT_SCOPE_BREAK_PATTERN = (
+    r"[;:]|\b(?:but|yet|however|then)\b|"
+    r"\band\s+(?=(?:[a-z]+ly\s+)*"
+    r"(?:[a-z]+s|am|is|are|was|were|has|have|had|"
+    r"can(?:not|['’]t)?|could|may|might|must|shall|should|will|would)\b"
+    r"(?:\s+[a-z0-9'’-]+)+\s*$)"
+)
+
 
 @dataclass(frozen=True)
 class AuditResult:
@@ -209,13 +250,62 @@ def _extract_constraints(units: list[str], objective: str) -> list[str]:
     return constraints[:4]
 
 
+def _references_objective(text: str, objective: str) -> bool:
+    lower = text.lower()
+    if any(re.search(pattern, lower) for pattern in OBJECTIVE_REFERENCE_PATTERNS):
+        return True
+
+    objective_terms = {
+        term
+        for term in re.findall(r"[a-z0-9]+", objective.lower())
+        if len(term) >= 4 and term not in OBJECTIVE_REFERENCE_STOPWORDS
+    }
+    if any(
+        re.search(rf"\b(?:the|this|that|its|their|our)\s+{re.escape(term)}\b", lower)
+        for term in objective_terms
+    ):
+        return True
+
+    displaced_terms = set(re.findall(r"[a-z0-9]+", lower))
+    matches = sum(
+        any(displaced == term or displaced.startswith(term) for displaced in displaced_terms)
+        for term in objective_terms
+    )
+    required_matches = 1 if len(objective_terms) == 1 else 2
+    return matches >= required_matches
+
+
+def _prohibits_displacement(activity: str) -> bool:
+    scoped_activity = re.split(DISPLACEMENT_SCOPE_BREAK_PATTERN, activity)[-1]
+    return any(re.search(pattern, scoped_activity) for pattern in DISPLACEMENT_PROHIBITION_PATTERNS)
+
+
+def _displaces_objective(unit: str, objective: str) -> bool:
+    lower = f" {_normalize_whitespace(unit).lower()} "
+    for marker in DISPLACEMENT_MARKERS:
+        activity, found, displaced = lower.partition(marker)
+        if (
+            found
+            and activity.strip()
+            and not _prohibits_displacement(activity)
+            and _references_objective(displaced, objective)
+        ):
+            return True
+    return False
+
+
 def _extract_proxies(units: list[str], objective: str) -> list[str]:
     proxies: list[str] = []
     for unit in units:
-        if unit == objective:
+        displaces_objective = _displaces_objective(unit, objective)
+        if unit == objective and not displaces_objective:
             continue
         lower = unit.lower()
-        if any(pattern in lower for pattern in PROXY_PATTERNS) or any(cue in lower for cue in PROXY_SIGNAL_CUES):
+        if (
+            any(pattern in lower for pattern in PROXY_PATTERNS)
+            or any(cue in lower for cue in PROXY_SIGNAL_CUES)
+            or displaces_objective
+        ):
             proxies.append(unit)
 
     if not proxies:
