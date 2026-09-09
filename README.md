@@ -1,5 +1,9 @@
 # Cass-V Lite
 
+**AI evaluation · agent safety · objective drift · specification gaming · proxy substitution · governance evaluation · structural alignment**
+
+[Support Josh Young's independent evaluation research](https://cash.app/$uberbestest1)
+
 Cass-V Lite is a small structural audit tool for checking whether a stated objective survives optimization pressure.
 
 It is meant for quick, grounded evaluation of systems, plans, prompts, and governance designs. The tool looks for cases where a proxy, metric, reward signal, or vague target can replace the original objective.
