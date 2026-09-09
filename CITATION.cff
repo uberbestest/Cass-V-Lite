@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use Cass-V Lite, please cite this repository."
+title: "Cass-V Lite"
+type: software
+authors:
+  - family-names: Young
+    given-names: Josh
+abstract: "A small structural audit tool for checking whether a stated objective survives optimization pressure, with explicit attention to proxy substitution, constraints, failure surfaces, and minimal repair."
+keywords:
+  - AI evaluation
+  - agent safety
+  - objective drift
+  - specification gaming
+  - proxy substitution
+  - governance evaluation
+  - structural alignment
+repository-code: "https://github.com/uberbestest/Cass-V-Lite"
